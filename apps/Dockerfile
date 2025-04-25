@@ -23,7 +23,7 @@ COPY package*.json ./
 #RUN npm set progress=false \
 #    && npm config set depth 0 \
 #    && npm i install
-RUN npm ci
+RUN npm install
  
 # Get all the code needed to run the app
 COPY . .
