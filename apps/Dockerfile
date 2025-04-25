@@ -16,8 +16,8 @@ FROM node:lts-buster
 WORKDIR /usr/src/app
  
 # Copy dependency definitions
-COPY package.json ./package.json
-COPY package-lock.json ./package-lock.json
+COPY package*.json ./
+# COPY package-lock.json ./package-lock.json
  
 # Install dependencies
 #RUN npm set progress=false \
