@@ -16,7 +16,7 @@ FROM node:lts-buster
 WORKDIR /usr/src/app
  
 # Copy dependency definitions
-COPY package*.json ./
+COPY package*.json .
 # COPY package-lock.json ./package-lock.json
  
 # Install dependencies
