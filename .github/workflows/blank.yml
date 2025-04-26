@@ -6,8 +6,9 @@ on:
       - main
 
 env:
+  ECR_REPOSITORY_NAME: test
   AWS_REGION: us-east-1                  # set this to your preferred AWS region, e.g. us-west-1
-  ECR_REPOSITORY: test           # set this to your Amazon ECR repository name
+  #ECR_REPOSITORY: test           # set this to your Amazon ECR repository name
   ECS_SERVICE: ecs-service               # set this to your Amazon ECS service name
   ECS_CLUSTER: ecs-cluster                 # set this to your Amazon ECS cluster name
   ECS_TASK_DEFINITION: ecs-app-task # set this to the path to your Amazon ECS task definition
@@ -19,39 +20,23 @@ permissions:
   contents: read
 
 jobs:
-  build-and-push:
-    name: Build and Push
+  build_and_push:
     runs-on: ubuntu-latest
-    # environment: production
-
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
-
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-
-    - name: Build, tag, and push image to Amazon ECR
-      id: build-image
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        IMAGE_TAG: production
-      run: |
-        # Build a docker container and
-        # push it to ECR so that it can
-        # be deployed to ECS.
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ./apps/Dockerfile .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
-        echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_ENV
+      - uses: actions/checkout@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Log in to ECR
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t my-image:latest .
+          docker tag my-image:latest ${{ secrets.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY_NAME }}:latest
+          docker push ${{ secrets.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY_NAME }}:latest
 
   # deploy:
   #   name: Deploy
